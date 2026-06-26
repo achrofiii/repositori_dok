@@ -104,6 +104,7 @@ class DokumenController extends Controller
                 'is_verified' => false,
                 'is_published' => false,
                 'jumlah_diunduh' => 0,
+                'status' => 'pending',
             ]);
 
             return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil disimpan');
@@ -191,6 +192,8 @@ class DokumenController extends Controller
                 'fakultas_id' => $request->fakultas,
                 'jurusan_id' => $request->jurusan,
                 'dosen_id' => $dosenId,
+                'status' => 'pending',
+                'catatan_revisi' => null,
             ]);
             // Log::info('Data update:', [
             //     'request' => $request->all(),

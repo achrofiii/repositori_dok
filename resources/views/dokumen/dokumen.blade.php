@@ -64,7 +64,7 @@
                     {{-- <th>Fakultas</th> --}}
                     <th>Jurusan</th>
                     <th>Diunduh</th>
-                    <th>Verifikasi</th>
+                    <th>Status</th>
                     <th>Publikasi</th>
                     <th>Aksi</th>
                   </tr>
@@ -85,9 +85,18 @@
                       <td>{{ $dokumen->jurusan->nama_jurusan ?? '-' }}</td>
                       <td>{{ $dokumen->jumlah_diunduh }}x</td>
                       <td>
-                        <span class="badge bg-{{ $dokumen->is_verified ? 'success' : 'warning' }}">
-                          {{ $dokumen->is_verified ? 'Verif' : 'Belum' }}
+                        @php
+                          $statusColor = 'warning';
+                          if ($dokumen->status === 'diterima') $statusColor = 'success';
+                          elseif ($dokumen->status === 'ditolak') $statusColor = 'danger';
+                          elseif ($dokumen->status === 'direvisi') $statusColor = 'info';
+                        @endphp
+                        <span class="badge bg-{{ $statusColor }}">
+                          {{ ucfirst($dokumen->status) }}
                         </span>
+                        @if($dokumen->status === 'direvisi')
+                          <br><small class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Ada Revisi</small>
+                        @endif
                       </td>
                       <td>
                         <span class="badge bg-{{ $dokumen->is_published ? 'primary' : 'secondary' }}">
@@ -117,9 +126,9 @@
                               </form>
                             </li>
                           @endcan
-                          @if (!$dokumen->is_verified)
+                          @if ($dokumen->status !== 'diterima' && $dokumen->status !== 'ditolak')
                             <li class="edit">
-                              <a href="{{ route($editRoute, $dokumen) }}" class="text-warning">
+                              <a href="{{ route($editRoute, $dokumen) }}" class="text-warning" title="Edit Dokumen">
                                 <i class="fa-regular fa-pen-to-square"></i>
                               </a>
                             </li>
@@ -128,7 +137,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="button" onclick="confirmDelete(this)"
-                                  class="btn p-0 border-0 bg-transparent text-danger">
+                                  class="btn p-0 border-0 bg-transparent text-danger" title="Hapus Dokumen">
                                   <i class="fa-solid fa-trash-can"></i>
                                 </button>
                               </form>
@@ -171,11 +180,30 @@
                                 @if ($dokumen->dosen)
                                   <p><strong>Dosen Pembimbing:</strong> {{ $dokumen->dosen->name }}</p>
                                 @endif
+                                
+                                @if($dokumen->catatan_revisi)
+                                <div class="alert alert-warning p-2 mt-2 f-12">
+                                  <strong><i class="fa-solid fa-note-sticky me-1"></i> Catatan/Revisi:</strong><br>
+                                  {{ $dokumen->catatan_revisi }}
+                                </div>
+                                @endif
+                                
                                 <hr>
                                 <p><strong>Abstrak:</strong></p>
                                 <p>{{ $dokumen->abstrak }}</p>
                               </div>
                             </div>
+
+                            @if($dokumen->file_path)
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6 class="text-muted mb-2">Preview File:</h6>
+                                    <div class="border rounded p-1 bg-light">
+                                        <iframe src="{{ asset('storage/dokumen/file/' . $dokumen->file_path) }}" width="100%" height="400px" style="border: none; border-radius: 4px;"></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                           </div>
                           <div class="modal-footer">
                             <a href="{{ route('auth.dokumen.download', $dokumen) }}" class="btn btn-success">

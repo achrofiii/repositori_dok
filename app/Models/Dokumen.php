@@ -39,7 +39,9 @@ class Dokumen extends Model
         'is_verified',
         'is_published',
         'jumlah_diunduh',
-        'nilai_kelayakan', // ← TAMBAHAN untuk SPK
+        'nilai_kelayakan',
+        'status',
+        'catatan_revisi',
     ];
 
     public function user()

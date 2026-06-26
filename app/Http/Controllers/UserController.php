@@ -57,7 +57,7 @@ class UserController extends Controller
     public function destroy(User $custommer_service)
     {
         $custommer_service->delete();
-        return redirect()->route('custommer-service.index')->with('success', 'User berhasil dihapus'); 
+        return redirect()->route('custommer-service.index')->with('success', 'User berhasil dihapus');
     }
 
     public function import(Request $request)

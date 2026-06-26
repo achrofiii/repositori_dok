@@ -180,7 +180,24 @@
                                             accept="image/*">
                                     </div>
                                     <script>
+                                        const imgContainer = document.getElementById('imgContainer');
+                                        const inputGambar = document.getElementById('inputGambar');
                                         imgContainer.src = "{{ asset('uploadImg/upload.jpg') }}";
+
+                                        if (inputGambar && imgContainer) {
+                                            inputGambar.addEventListener('change', function() {
+                                                const file = this.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = function(e) {
+                                                        imgContainer.src = e.target.result;
+                                                    }
+                                                    reader.readAsDataURL(file);
+                                                } else {
+                                                    imgContainer.src = "{{ asset('uploadImg/upload.jpg') }}";
+                                                }
+                                            });
+                                        }
                                     </script>
                                 </div>
 
@@ -188,10 +205,31 @@
                                     <label class="form-label" for="file_dokumen">File<span
                                             class="text-danger">*</span></label>
                                     <input class="form-control @error('file_dokumen') is-invalid @enderror"
-                                        id="file_dokumen" name="file_dokumen" type="file" required>
+                                        id="file_dokumen" name="file_dokumen" type="file" accept=".pdf,.doc,.docx" required>
                                     @error('file_dokumen')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
+
+                                    <div class="mt-3">
+                                      <iframe id="pdfPreview" src="" width="100%" height="300px" style="border: 1px solid #ddd; border-radius: 8px; display: none;"></iframe>
+                                    </div>
+
+                                    <script>
+                                        const fileDokumen = document.getElementById('file_dokumen');
+                                        const pdfPreview = document.getElementById('pdfPreview');
+                                        if (fileDokumen && pdfPreview) {
+                                            fileDokumen.addEventListener('change', function() {
+                                                const file = this.files[0];
+                                                if (file && file.type === 'application/pdf') {
+                                                    const fileURL = URL.createObjectURL(file);
+                                                    pdfPreview.src = fileURL;
+                                                    pdfPreview.style.display = 'block';
+                                                } else {
+                                                    pdfPreview.style.display = 'none';
+                                                }
+                                            });
+                                        }
+                                    </script>
                                 </div>
                             </div>
 

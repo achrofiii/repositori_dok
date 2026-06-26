@@ -72,6 +72,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('can:verifikasi-dokumen')->get('/dokumen/verifikasi', [VerifikasiDokumenController::class, 'index'])->name('documents.verifikasi.index');
         Route::middleware('can:verifikasi-dokumen')->put('/dokumen/{dokumen}/verify', [VerifikasiDokumenController::class, 'verifyDosen'])->name('documents.verify.dosen');
         Route::middleware('can:verifikasi-dokumen')->put('/dokumen/{dokumen}/unverify', [VerifikasiDokumenController::class, 'unverify'])->name('documents.unverify.dosen');
+        Route::middleware('can:verifikasi-dokumen')->put('/dokumen/{dokumen}/tolak', [VerifikasiDokumenController::class, 'tolak'])->name('documents.tolak.dosen');
+        Route::middleware('can:verifikasi-dokumen')->put('/dokumen/{dokumen}/revisi', [VerifikasiDokumenController::class, 'revisi'])->name('documents.revisi.dosen');
         Route::get('/dokumen/{dokumen}', [VerifikasiDokumenController::class, 'show'])->name('documents.show');
 
         // SPK PROMETHEE
@@ -91,6 +93,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('can:verifikasi-dokumen-mahasiswa')->get('/dokumen/verifikasi', [VerifikasiDokumenController::class, 'index'])->name('dosen.documents.verifikasi.index');
         Route::middleware('can:verifikasi-dokumen-mahasiswa')->put('/dokumen/{dokumen}/verify', [VerifikasiDokumenController::class, 'verifyMahasiswa'])->name('documents.verify.mahasiswa');
         Route::middleware('can:verifikasi-dokumen-mahasiswa')->put('/dokumen/{dokumen}/unverify', [VerifikasiDokumenController::class, 'unverify'])->name('documents.unverify.mahasiswa');
+        Route::middleware('can:verifikasi-dokumen-mahasiswa')->put('/dokumen/{dokumen}/tolak', [VerifikasiDokumenController::class, 'tolak'])->name('documents.tolak.mahasiswa');
+        Route::middleware('can:verifikasi-dokumen-mahasiswa')->put('/dokumen/{dokumen}/revisi', [VerifikasiDokumenController::class, 'revisi'])->name('documents.revisi.mahasiswa');
     });
 
     // ===================== MAHASISWA ROUTES =====================

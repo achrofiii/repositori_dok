@@ -53,6 +53,8 @@ class VerifikasiDokumenController extends Controller
 
         $dokumen->is_verified      = true;
         $dokumen->is_published     = true;
+        $dokumen->status           = 'diterima';
+        $dokumen->catatan_revisi   = null;
         $dokumen->nilai_kelayakan  = $request->filled('nilai_kelayakan')
             ? $request->nilai_kelayakan
             : null;
@@ -84,6 +86,8 @@ class VerifikasiDokumenController extends Controller
 
         $dokumen->is_verified      = true;
         $dokumen->is_published     = true;
+        $dokumen->status           = 'diterima';
+        $dokumen->catatan_revisi   = null;
         $dokumen->nilai_kelayakan  = $request->filled('nilai_kelayakan')
             ? $request->nilai_kelayakan
             : null;
@@ -103,6 +107,7 @@ class VerifikasiDokumenController extends Controller
         if ($user->hasRole('admin')) {
             $dokumen->is_verified = false;
             $dokumen->is_published = false;
+            $dokumen->status = 'pending';
             $dokumen->save();
             return redirect()->back()->with('success', 'Verifikasi dokumen berhasil dibatalkan oleh admin.');
         }
@@ -110,11 +115,52 @@ class VerifikasiDokumenController extends Controller
         if ($user->hasRole('dosen') && $dokumen->user->hasRole('mahasiswa')) {
             $dokumen->is_verified = false;
             $dokumen->is_published = false;
+            $dokumen->status = 'pending';
             $dokumen->save();
             return redirect()->back()->with('success', 'Verifikasi dokumen mahasiswa berhasil dibatalkan.');
         }
 
         abort(403, 'Anda tidak memiliki izin untuk membatalkan verifikasi dokumen ini.');
+    }
+
+    // -----------------------------------------------------------------------
+    // Tolak dokumen
+    // -----------------------------------------------------------------------
+    public function tolak(Request $request, $id)
+    {
+        $dokumen = Dokumen::findOrFail($id);
+        
+        $request->validate([
+            'catatan_revisi' => 'nullable|string'
+        ]);
+
+        $dokumen->is_verified = false;
+        $dokumen->is_published = false;
+        $dokumen->status = 'ditolak';
+        $dokumen->catatan_revisi = $request->catatan_revisi;
+        $dokumen->save();
+
+        return redirect()->back()->with('success', 'Dokumen berhasil ditolak.');
+    }
+
+    // -----------------------------------------------------------------------
+    // Minta revisi dokumen
+    // -----------------------------------------------------------------------
+    public function revisi(Request $request, $id)
+    {
+        $dokumen = Dokumen::findOrFail($id);
+        
+        $request->validate([
+            'catatan_revisi' => 'required|string'
+        ]);
+
+        $dokumen->is_verified = false;
+        $dokumen->is_published = false;
+        $dokumen->status = 'direvisi';
+        $dokumen->catatan_revisi = $request->catatan_revisi;
+        $dokumen->save();
+
+        return redirect()->back()->with('success', 'Permintaan revisi berhasil dikirim.');
     }
 
     // -----------------------------------------------------------------------

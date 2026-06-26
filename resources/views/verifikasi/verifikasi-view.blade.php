@@ -46,6 +46,7 @@
                                         <th>Kategori</th>
                                         <th>Fakultas</th>
                                         <th>Jurusan</th>
+                                        <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -59,6 +60,17 @@
                                             <td>{{ $item->fakultas->nama_fakultas ?? '-' }}</td>
                                             <td>{{ $item->jurusan->nama_jurusan ?? '-' }}</td>
                                             <td>
+                                                @php
+                                                    $statusColor = 'warning';
+                                                    if ($item->status === 'diterima') $statusColor = 'success';
+                                                    elseif ($item->status === 'ditolak') $statusColor = 'danger';
+                                                    elseif ($item->status === 'direvisi') $statusColor = 'info';
+                                                @endphp
+                                                <span class="badge bg-{{ $statusColor }}">
+                                                    {{ ucfirst($item->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
                                                 <ul class="action">
                                                     {{-- Tombol: Lihat Detail --}}
                                                     <li class="info" style="margin-right: 7px">
@@ -71,6 +83,7 @@
                                                     </li>
 
                                                     {{-- Tombol: Verifikasi (buka modal form nilai) --}}
+                                                    @if($item->status !== 'direvisi' && $item->status !== 'ditolak')
                                                     <li class="verify" style="margin-right: 7px">
                                                         <button type="button" class="btn p-0 border-0 bg-transparent"
                                                             data-bs-toggle="modal"
@@ -79,6 +92,31 @@
                                                             <i class="fa-solid fa-check-circle text-success"></i>
                                                         </button>
                                                     </li>
+                                                    @endif
+
+                                                    {{-- Tombol: Tolak --}}
+                                                    @if($item->status !== 'ditolak')
+                                                    <li class="delete" style="margin-right: 7px">
+                                                        <button type="button" class="btn p-0 border-0 bg-transparent"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalTolak{{ $index }}"
+                                                            title="Tolak Dokumen">
+                                                            <i class="fa-solid fa-xmark text-danger"></i>
+                                                        </button>
+                                                    </li>
+                                                    @endif
+
+                                                    {{-- Tombol: Revisi --}}
+                                                    @if($item->status !== 'direvisi')
+                                                    <li class="edit">
+                                                        <button type="button" class="btn p-0 border-0 bg-transparent"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalRevisi{{ $index }}"
+                                                            title="Minta Revisi">
+                                                            <i class="fa-solid fa-pen-to-square text-warning"></i>
+                                                        </button>
+                                                    </li>
+                                                    @endif
                                                 </ul>
                                             </td>
                                         </tr>
@@ -167,6 +205,17 @@
                                 <p class="f-13">{{ $item->abstrak }}</p>
                             </div>
                         </div>
+
+                        @if($item->file_path)
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6 class="text-muted mb-2">Preview File:</h6>
+                                <div class="border rounded p-1 bg-light">
+                                    <iframe src="{{ asset('storage/dokumen/file/' . $item->file_path) }}" width="100%" height="400px" style="border: none; border-radius: 4px;"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     <div class="modal-footer">
                         <a href="{{ route('auth.dokumen.download', $item) }}" class="btn btn-success btn-sm">
@@ -230,6 +279,92 @@
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success btn-sm">
                                 <i class="fa-solid fa-check me-1"></i> Verifikasi & Terbitkan
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODAL TOLAK --}}
+        <div class="modal fade" id="modalTolak{{ $index }}" tabindex="-1"
+            aria-labelledby="modalLabelTolak{{ $index }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalLabelTolak{{ $index }}">
+                            <i class="fa-solid fa-xmark me-2"></i>Tolak Dokumen
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Tutup"></button>
+                    </div>
+
+                    <form
+                        action="{{ auth()->user()->hasRole('admin')
+                            ? route('documents.tolak.dosen', $item->id)
+                            : route('documents.tolak.mahasiswa', $item->id) }}"
+                        method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="modal-body">
+                            <p>Anda yakin ingin menolak dokumen <strong>{{ $item->judul }}</strong>?</p>
+                            
+                            <div class="mb-3">
+                                <label for="catatan_tolak_{{ $index }}" class="form-label fw-semibold">
+                                    Catatan / Alasan Penolakan <small class="text-muted fw-normal">(Opsional)</small>
+                                </label>
+                                <textarea class="form-control" id="catatan_tolak_{{ $index }}" name="catatan_revisi" rows="3" placeholder="Masukkan alasan dokumen ditolak..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-xmark me-1"></i> Tolak Dokumen
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODAL REVISI --}}
+        <div class="modal fade" id="modalRevisi{{ $index }}" tabindex="-1"
+            aria-labelledby="modalLabelRevisi{{ $index }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="modalLabelRevisi{{ $index }}">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Minta Revisi
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Tutup"></button>
+                    </div>
+
+                    <form
+                        action="{{ auth()->user()->hasRole('admin')
+                            ? route('documents.revisi.dosen', $item->id)
+                            : route('documents.revisi.mahasiswa', $item->id) }}"
+                        method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="catatan_revisi_{{ $index }}" class="form-label fw-semibold">
+                                    Catatan Revisi <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" id="catatan_revisi_{{ $index }}" name="catatan_revisi" rows="4" placeholder="Sebutkan detail apa saja yang perlu direvisi oleh mahasiswa..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Kirim Revisi
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm"
                                 data-bs-dismiss="modal">Batal</button>

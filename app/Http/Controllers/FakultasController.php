@@ -44,7 +44,6 @@ class FakultasController extends Controller
     //Hapus fakultas
     public function destroy(Fakultas $fakulta)
     {
-        // dd($fakultas);
         $fakulta->delete();
         return redirect()->back()->with('delete_success', 'Fakultas berhasil dihapus.');
     }

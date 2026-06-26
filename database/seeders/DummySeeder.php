@@ -301,6 +301,7 @@ class DummySeeder extends Seeder
                     'is_published'    => $isPublished,
                     'jumlah_diunduh'  => $unduhan,
                     'nilai_kelayakan' => $nilai,
+                    'status'          => $isVerified ? 'diterima' : 'pending',
                     'created_at'      => now()->subDays(rand(1, 365)),
                 ]);
 

@@ -218,7 +218,7 @@
         </div>
         <div class="space-80"></div>
     </section>
-    <section class="bg-primary relative">
+    {{-- <section class="bg-primary relative">
         <div class="space-80"></div>
         <div class="container">
             <div class="row">
@@ -266,5 +266,5 @@
             </div>
         </div>
         <div class="space-80"></div>
-    </section>
+    </section> --}}
 @endsection

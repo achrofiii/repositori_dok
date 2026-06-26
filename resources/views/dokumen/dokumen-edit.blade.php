@@ -153,21 +153,67 @@
                     </label>
                     <input name="thumbnail" class="inputt" type="file" id="inputGambar" accept="image/*">
                   </div>
+                  <script>
+                      const imgContainer = document.getElementById('imgContainer');
+                      const inputGambar = document.getElementById('inputGambar');
+                      if (inputGambar && imgContainer) {
+                          inputGambar.addEventListener('change', function() {
+                              const file = this.files[0];
+                              if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = function(e) {
+                                      imgContainer.src = e.target.result;
+                                  }
+                                  reader.readAsDataURL(file);
+                              }
+                          });
+                      }
+                  </script>
                 </div>
 
                 <div class="col-md-12 position-relative" style="margin-bottom: -30px">
                   <label class="form-label" for="file_dokumen">File</label>
                   <input class="form-control @error('file_dokumen') is-invalid @enderror" id="file_dokumen"
-                    name="file_dokumen" type="file">
+                    name="file_dokumen" type="file" accept=".pdf,.doc,.docx">
                   @error('file_dokumen')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                   @enderror
 
                   @if ($dokumen->file_path)
-                    <small class="text-muted mt-3">File saat ini: <a
+                    <div class="mt-3">
+                      <iframe id="pdfPreview" src="{{ asset('storage/dokumen/file/' . $dokumen->file_path) }}" width="100%" height="300px" style="border: 1px solid #ddd; border-radius: 8px; display: block;"></iframe>
+                    </div>
+                    <small class="text-muted mt-2 d-block">File saat ini: <a
                         href="{{ asset('storage/dokumen/file/' . $dokumen->file_path) }}" target="_blank">Lihat
-                        file</a></small>
+                        file di tab baru</a></small>
+                  @else
+                    <div class="mt-3">
+                      <iframe id="pdfPreview" src="" width="100%" height="300px" style="border: 1px solid #ddd; border-radius: 8px; display: none;"></iframe>
+                    </div>
                   @endif
+
+                  <script>
+                      const fileDokumen = document.getElementById('file_dokumen');
+                      const pdfPreview = document.getElementById('pdfPreview');
+                      if (fileDokumen && pdfPreview) {
+                          fileDokumen.addEventListener('change', function() {
+                              const file = this.files[0];
+                              if (file && file.type === 'application/pdf') {
+                                  const fileURL = URL.createObjectURL(file);
+                                  pdfPreview.src = fileURL;
+                                  pdfPreview.style.display = 'block';
+                              } else {
+                                  // Hide preview if not pdf or no file selected
+                                  @if(!$dokumen->file_path)
+                                  pdfPreview.style.display = 'none';
+                                  @else
+                                  // Revert to original
+                                  pdfPreview.src = "{{ asset('storage/dokumen/file/' . $dokumen->file_path) }}";
+                                  @endif
+                              }
+                          });
+                      }
+                  </script>
                 </div>
               </div>
 

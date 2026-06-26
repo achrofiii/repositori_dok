@@ -69,7 +69,7 @@
                                 <i class="fa-solid fa-trash-can"></i>
                               </button>
                             </form>
-                          </li>                          
+                          </li>
                         </ul>
                       </td>
                     </tr>
@@ -82,8 +82,8 @@
       </div>
     </div>
   </div>
-  
-  {{-- Offcanvas Add Section --}}
+
+  {{-- Offcanvas tambah --}}
   <div class="card-body common-flex common-offcanvas">
     <div class="offcanvas offcanvas-end" id="offcanvasCreate" tabindex="-1" aria-labelledby="offcanvasRightLabel">
       <div class="offcanvas-header pb-0">
@@ -113,7 +113,7 @@
       </div>
     </div>
   </div>
-  {{-- Offcanvas Edit Section --}}
+  {{-- Offcanvas Edit --}}
   @foreach ($fakultas as $f)
     <div class="card-body common-flex common-offcanvas">
       <div class="offcanvas offcanvas-end" id="offcanvasEdit{{ $f->id }}" tabindex="-1"
